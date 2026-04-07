@@ -1,0 +1,46 @@
+name,easing,duration_ms,trigger,axis,loop,amplitude,description,threejs_hint
+Float Up,easeOutCubic,800,onLoad,Y,false,0.3,Object rises smoothly into view,position.y tween from -2 to 0
+Gentle Bob,sinusoidal,2000,continuous,Y,true,0.1,Endless up-down idle float,Math.sin(t)*0.1 on y
+Slow Spin,linear,8000,continuous,Y,true,360,Full rotation idle loop,rotation.y += 0.001
+Zoom In,easeOutExpo,600,onLoad,Z,false,1.5,Camera rushes in from far,camera.position.z tween
+Shake,easeInOutSine,300,onEvent,X,false,0.05,Rapid horizontal shake on error,position.x oscillate
+Orbit,linear,12000,continuous,XZ,true,360,Object orbits center point,polar coordinates update
+Pulse Scale,easeInOutQuad,1000,continuous,XYZ,true,0.05,Breathe-like scale oscillation,scale.setScalar(1+Math.sin(t)*0.05)
+Flip In,easeOutBack,700,onLoad,X,false,180,Card flip reveal from horizontal,rotation.x tween 0 to PI
+Dissolve,easeInQuart,500,onExit,opacity,false,0,Fade out with scale collapse,material.opacity tween + scale
+Bounce Drop,easeOutBounce,900,onLoad,Y,false,3,Falls from top with bounce,position.y tween with bounce
+Slide Left,easeOutCubic,500,onEnter,X,false,4,Slides in from right side,position.x tween
+Slide Right,easeOutCubic,500,onEnter,X,false,-4,Slides in from left side,position.x tween
+Morph Shape,easeInOutCubic,1200,onEvent,geometry,false,1,Vertices shift to new shape,BufferGeometry morph targets
+Ripple,easeOutSine,800,onClick,XZ,false,0.5,Wave expands outward from click,vertex shader ripple
+Spiral In,easeOutCirc,1000,onLoad,XYZ,false,2,Object spirals down to position,helix path tween
+Vortex,linear,5000,continuous,XZ,true,360,Swirl around Y axis accelerating,increasing omega
+Elastic Pop,easeOutElastic,700,onLoad,XYZ,false,1.3,Overshoots scale then settles,scale from 0 overshoot 1.3 to 1
+Tilt Card,easeOutQuad,200,onHover,XY,false,15,Mouse-tracked 3D tilt on hover,rotation.x/y map to mouse
+Glitch Jitter,steps(4),100,onEvent,XYZ,false,0.2,Chaotic glitch displacement burst,random offset each frame
+Swing Pendulum,easeInOutSine,1500,continuous,Z,true,30,Pendulum arc around pivot,rotation.z oscillate
+Unfurl,easeOutCubic,900,onLoad,Y,false,2,Unrolls from flat into 3D,scaleY tween 0 to 1
+Collapse,easeInCubic,600,onExit,Y,false,0,Flattens and disappears,scaleY tween 1 to 0
+Shockwave Ring,easeOutQuart,700,onClick,XZ,false,3,Expanding ring pulse from point,torus scale + opacity tween
+Magnetic Pull,easeInOutQuad,400,onHover,XYZ,false,0.3,Object leans toward cursor,lerp toward mouse position
+Levitate,easeInOutSine,3000,continuous,Y,true,0.15,Slow dreamy float,Math.sin(t*0.5)*0.15 y offset
+Rotate X Reveal,easeOutBack,800,onLoad,X,false,90,Flips forward from 90 deg tilt,rotation.x tween PI/2 to 0
+Streak Trail,easeOutExpo,400,onMove,Z,false,2,Motion blur trail effect,cloned meshes with opacity fade
+Sway,easeInOutSine,4000,continuous,Z,true,5,Gentle side-to-side sway,rotation.z oscillate
+Roll In,easeOutCubic,700,onLoad,Z,false,360,Rolls in rotating on Z axis,position.x + rotation.z tween
+Implode,easeInBack,500,onExit,XYZ,false,0,Sucks inward to vanish,scale tween 1 to 0 with overshoot
+Explode Parts,easeOutExpo,800,onEvent,XYZ,false,3,Parts scatter outward,individual mesh position tweens
+Gravity Fall,easeInCubic,600,onEvent,Y,false,-5,Drops with gravitational feel,position.y tween accelerating
+Reveal Wipe,easeOutQuad,700,onLoad,X,false,1,Clip plane sweeps across,clipping plane position tween
+Breath Glow,easeInOutSine,2500,continuous,emissive,true,0.4,Pulsing emissive glow,emissiveIntensity oscillate
+Camera Dolly,easeInOutCubic,1500,onScroll,Z,false,5,Camera moves in as scroll,camera.position.z lerp
+Pinwheel,easeOutCirc,800,onLoad,Y,false,540,Spins 1.5x then stops,rotation.y tween 0 to 3PI
+Wave Propagation,easeInOutSine,1000,continuous,Y,true,0.3,Sequential vertex wave,vertex y = sin(x+t)
+Shatter,easeOutExpo,600,onEvent,XYZ,false,2,Breaks into fragments,Voronoi fragment positions tween
+Typewriter Extrude,easeOutCubic,50,onLoad,Z,false,1,Letters extrude one by one,sequential depth tween per char
+Carousel Rotate,easeInOutQuad,500,onClick,Y,false,72,Rotates to next item (5-slot),rotation.y += PI*2/5
+Depth Parallax,linear,100,onScroll,Z,false,0.5,Layers scroll at different Z speeds,z offset by scroll factor
+Matrix Rain,linear,1500,continuous,Y,true,10,Elements fall in columns,random Y reset loop
+Glimmer Scan,easeInOutSine,2000,continuous,X,true,1,Highlight band sweeps across,shader uniform x position
+Comet Dash,easeOutQuart,300,onEvent,X,false,8,Fast streak across then gone,position tween + alpha
+Unwrap UV,easeOutCubic,1100,onLoad,XY,false,1,UV unfolds from center,UV offset shader tween
