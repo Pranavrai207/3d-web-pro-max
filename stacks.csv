@@ -1,0 +1,16 @@
+name,renderer,physics,animation,ui_framework,bundler,state,3d_assets,best_for,complexity
+Three.js Vanilla,Three.js r128,Cannon.js,GSAP,None,Vite,Custom,GLTFLoader,Creative portfolios experiments,beginner
+React Three Fiber,Three.js r128,Rapier,Framer Motion,React,Vite,Zustand,Drei helpers,Product visualization SaaS,intermediate
+Next.js 3D,Three.js r128,Rapier,GSAP,Next.js,Turbopack,Jotai,R3F Drei,SEO-needed 3D sites,intermediate
+Vue 3D,Three.js r128,Cannon.js,GSAP,Vue 3,Vite,Pinia,Custom loaders,Vue ecosystem 3D apps,intermediate
+Svelte 3D,Three.js r128,Rapier,Motion One,Svelte,Vite,Svelte Stores,Threlte,Lightweight creative,intermediate
+Babylon.js Enterprise,Babylon.js,Havok,Babylon Animation,React,Webpack 5,Redux,Babylon Asset Manager,Enterprise 3D configurators,advanced
+PlayCanvas Web,PlayCanvas,PlayCanvas Physics,PlayCanvas Tween,Vanilla JS,PlayCanvas Build,Custom,PlayCanvas Assets,Web games interactive,intermediate
+A-Frame VR,A-Frame,Physics Component,A-Frame Animation,HTML Custom,None,Custom,A-Frame Assets,WebXR VR experiences,beginner
+WebGPU Cutting Edge,WebGPU,Custom WASM,Custom,Vanilla TS,Vite,Signals,Custom loaders,Bleeding edge experiments,expert
+Spline React,Spline Runtime,None,Spline built-in,React,Vite,Zustand,Spline Editor,No-code 3D in React,beginner
+R3F Game Stack,React Three Fiber,Rapier,React Spring,React,Vite,Zustand,Drei R3F,Web games with React,advanced
+Astro 3D,Three.js r128,None,GSAP,Astro,Vite,Nano Stores,Custom,Static 3D landing pages,intermediate
+Nuxt 3D,Three.js r128,None,GSAP,Nuxt 3,Vite,Pinia,TresJS,Vue SSR 3D apps,advanced
+Angular 3D,Three.js r128,Cannon.js,GSAP,Angular,Angular CLI,NgRx,Custom Service,Enterprise Angular 3D,advanced
+SolidJS 3D,Three.js r128,Rapier,Motion One,SolidJS,Vite,Solid Stores,Solid Three,Performance-critical 3D,advanced
