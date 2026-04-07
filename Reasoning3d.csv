@@ -1,0 +1,51 @@
+rule_id,condition,result,priority,reasoning
+r001,use_case=hero AND budget=low AND no_react=true,stack=vanilla-three scene=abstract-fluid-bg shader=simplex-noise-distort,10,No React means R3F not suitable. Vanilla Three.js shader bg is cheapest impressive option.
+r002,use_case=hero AND framework=react AND complexity=high,stack=r3f-full scene=scroll-camera-journey motion=scroll-trigger-pin,10,React project needing high impact → full R3F with GSAP scroll camera journey
+r003,industry=agency AND complexity=high AND framework=react,stack=r3f-full scene=scroll-camera-journey motion=smooth-scroll-lenis,10,Agency sites need maximum wow factor with scroll-driven 3D
+r004,industry=ecommerce AND product_type=physical,stack=r3f-full scene=product-360-viewer shader=matcap motion=drag-3d,10,E-commerce physical products → always 360 viewer with Draco compression
+r005,industry=saas AND complexity=low,stack=spline-only scene=spline-embed motion=stagger-reveal,8,SaaS sites with simple needs → Spline embed prevents over-engineering
+r006,mobile_priority=high AND scene_type=particles,rule=limit_particles_5k stack=vanilla-three perf=particle-limit-mobile,10,Mobile-first means hard particle count limit
+r007,user_device=mobile AND scene=any_webgl,rule=disable_post_processing perf=post-process-mobile,10,Post-processing always off on mobile
+r008,industry=luxury AND style=minimal,stack=r3f-full scene=glass-room shader=crystal-refraction palette=diamond-light,9,Luxury + minimal → glass/crystal aesthetic with premium materials
+r009,industry=music OR industry=entertainment AND audio=true,stack=audio-web-stack scene=audio-reactive-particles shader=plasma-field,9,Audio-reactive always needs Web Audio API stack
+r010,industry=healthcare AND audience=general,stack=r3f-minimal scene=dna-helix palette=arctic-glass motion=stagger-reveal,8,Healthcare: trust and clarity → clean minimal 3D accents not heavy scenes
+r011,complexity_request=very_high AND mobile_support=required,rule=must_add_css_fallback perf=webgl-fallback,10,Very high complexity always needs no-WebGL fallback for mobile safety
+r012,industry=automotive AND type=configurator,stack=r3f-full scene=product-360-viewer shader=liquid-metal-shader motion=drag-3d perf=draco-compress,10,Auto configurator needs 360 viewer + paint shader + Draco compressed GLTF
+r013,effect_request=particles AND count>50000,rule=use_instancedmesh shader=point-sprite perf=instance-mesh,10,>50K particles must use GPU instancing or shader-based approach
+r014,framework=nextjs AND seo=important,stack=nextjs-r3f rule=dynamic_import_canvas,9,Next.js needs dynamic import for R3F canvas to avoid SSR errors
+r015,industry=crypto OR industry=web3,stack=r3f-full scene=hologram-ui shader=hologram-scan palette=midnight-neon,8,Crypto/Web3 defaults to dark holographic futuristic aesthetic
+r016,project_size=landing_page AND timeline=fast,stack=spline-only scene=spline-embed motion=scroll-opacity-fade,7,Fast landing page → Spline + simple scroll animations
+r017,scene=scroll-camera-journey AND mobile=true,rule=disable_scroll_journey_on_mobile fallback=depth-scroll,9,Scroll camera journeys break on mobile → fallback to CSS parallax
+r018,industry=fashion AND style=editorial,stack=r3f-full scene=cloth-simulation shader=iridescence palette=oil-slick motion=scroll-text-3d,9,Fashion editorial → cloth sim + iridescence + editorial scroll typography
+r019,client_budget=low AND needs_3d=true,stack=css-3d-stack scene=depth-scroll shader=none,7,Low budget → CSS 3D is free of WebGL complexity and impressive enough
+r020,effect=background_only AND complexity=low,stack=shader-only scene=abstract-fluid-bg shader=simplex-noise-distort,8,Background shader only → vanilla Three.js ShaderMaterial is sufficient
+r021,industry=architecture AND type=visualization,stack=r3f-full scene=glass-room shader=mirror-reflect palette=warm-ivory,9,Architecture viz → glass room + mirror floor + warm materials
+r022,industry=gaming AND style=cyberpunk,stack=r3f-full scene=neon-grid shader=wireframe-glow palette=neon-tokyo,9,Cyberpunk gaming → neon grid + wireframe glow + tokyo palette
+r023,interaction=physics AND objects<50,stack=r3f-physics scene=emoji-physics motion=bounce-physics,8,<50 physics objects → Rapier is OK without worker
+r024,interaction=physics AND objects>50,stack=r3f-physics rule=run_physics_in_worker perf=worker-physics,10,>50 physics bodies must use worker thread to avoid frame drops
+r025,scene=any AND gltf=true,perf=draco-compress perf=texture-ktx2 perf=gltf-cache,10,Any GLTF scene must always use Draco + KTX2 + preload cache
+r026,industry=beauty OR industry=wellness AND style=soft,stack=r3f-minimal scene=morphing-blob shader=soap-bubble palette=soft-lavender,8,Beauty/wellness → soft blob + iridescence + pastel palette
+r027,effect=text_3d AND use_react=true,stack=r3f-full scene=text-3d-reveal library=drei_text3d shader=rim-light,8,3D text in React → Drei Text3D with rim lighting
+r028,industry=fintech AND type=dashboard,stack=r3f-full scene=data-globe shader=color-grade palette=steel-blue,9,Fintech dashboard → data globe + color grading + navy blue
+r029,scroll_type=horizontal,motion=horizontal-scroll perf=avoid_heavy_webgl_in_horizontal,8,Horizontal scroll sections need careful WebGL coordination
+r030,project=portfolio AND developer=true,stack=r3f-full scene=magnetic-cursor scene2=particle-constellation motion=spring-follow,9,Developer portfolio → magnetic cursor + particle hero
+r031,text_animation=hero,motion=text-split-reveal motion2=stagger-reveal font=bold_display,8,Hero text → always split text reveal with stagger
+r032,industry=startup AND launch=true,scene=countdown-3d motion=scroll-zoom motion2=particle-burst-cta palette=electric-blue,8,Startup launch → 3D countdown + zoom reveal + particle CTA
+r033,style=minimal AND three_d=accent_only,stack=css-3d-stack scene=holographic-card motion=tilt-hover,7,Minimal style with 3D accents → CSS 3D tilt cards no WebGL
+r034,industry=education AND audience=children,stack=spline-only scene=voxel-world palette=candy-pop motion=bounce-physics,7,Education for children → Spline voxel world + candy colors + bouncy physics
+r035,page_type=404,scene=glitch-effect motion=text-scramble shader=glitch-rgb,7,404 page → glitch effect is on-brand and expected
+r036,loading_needed=true AND assets_heavy=true,scene=3d-loader motion=loading-sequence stack=r3f-full,8,Heavy assets need branded 3D loading screen with useProgress
+r037,industry=travel AND type=immersive,stack=r3f-full scene=procedural-landscape shader=gradient-sky motion=scroll-camera-journey,9,Travel immersive → procedural landscape + sky dome + camera journey
+r038,client=non_technical AND edit_needed=true,stack=spline-only,10,Non-technical client needing edits → Spline visual editor is only viable option
+r039,effect=cursor AND style=creative,motion=cursor-trail motion2=magnetic-hover shader=none,7,Creative cursor → trail effect + magnetic hover on interactive elements
+r040,industry=music AND type=artist_site,stack=audio-web-stack scene=audio-reactive-particles motion=audio-gsap palette=cyber-pink,9,Music artist site → always audio-reactive with matching dark palette
+r041,performance_critical=true AND complexity=high,rule=add_performance_monitoring perf=gpu-memory-budget perf=render-scale-mobile,10,Performance-critical → add spector.js monitoring + strict GPU budget
+r042,scene=any AND has_lights=true,perf=shadow-limit rule=max_3_shadow_casters,9,Always limit shadow-casting lights to 3 maximum
+r043,deployment=production AND seo=required,stack=nextjs-r3f rule=dynamic_import_no_ssr perf=lazy-load-3d,10,Production + SEO → Next.js with dynamic no-SSR import + lazy load
+r044,industry=real_estate AND type=virtual_tour,stack=r3f-full scene=glass-room motion=drag-3d perf=texture-ktx2,9,Virtual tour → glass room + drag navigation + compressed textures
+r045,device_check=needed,rule=add_webgl_detector perf=webgl-fallback palette=any,10,Always add WebGL detection before rendering scene
+r046,style=retro OR style=vaporwave,scene=matrix-rain shader=scanline-crt palette=neon-tokyo motion=kinetic-type,7,Retro/vaporwave → matrix rain + CRT scanlines + neon tokyo
+r047,scene=any AND ambient_light_only=true,rule=use_environment_map_instead,8,Single ambient light → replace with HDR environment map for better quality
+r048,industry=science AND type=explainer,scene=dna-helix OR scene=molecular-network OR scene=solar-system motion=stagger-reveal,8,Science explainers → factual 3D models with clean reveal animations
+r049,budget=unlimited AND style=premium,stack=postprocessing-stack scene=glass-room shader=god-rays shader2=bokeh-dof,9,Unlimited budget premium → post-processing stack with god rays and bokeh
+r050,type=interactive_experience AND duration=long,stack=r3f-full scene=scroll-camera-journey motion=smooth-scroll-lenis perf=render-once,9,Long interactive experience → full R3F journey with demand rendering to save battery
