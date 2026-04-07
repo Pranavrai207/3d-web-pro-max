@@ -1,0 +1,41 @@
+heading_font,body_font,google_fonts_url,weight_heading,weight_body,style,use_case,3d_label_size,contrast_mode
+Space Grotesk,Inter,Space+Grotesk:700|Inter:400,700,400,modern-tech,SaaS AI dashboard,32px,dark
+Bebas Neue,Roboto,Bebas+Neue|Roboto:400,400,400,bold-display,sports gaming landing,48px,dark
+Playfair Display,Source Serif 4,Playfair+Display:700|Source+Serif+4:400,700,400,editorial,luxury fashion,28px,light
+Orbitron,Rajdhani,Orbitron:700|Rajdhani:400,700,400,sci-fi,space tech gaming,36px,dark
+DM Sans,DM Sans,DM+Sans:300;700,700,300,minimal,product portfolio,30px,both
+Cinzel,Lato,Cinzel:700|Lato:400,700,400,classic,heritage jewelry,32px,light
+Syne,Syne,Syne:400;800,800,400,experimental,art creative,40px,dark
+Anton,Open Sans,Anton|Open+Sans:400,400,400,impact,event action landing,52px,dark
+Cormorant Garamond,Raleway,Cormorant+Garamond:600|Raleway:300,600,300,elegant,couture editorial,28px,light
+JetBrains Mono,JetBrains Mono,JetBrains+Mono:700;400,700,400,monospace,developer tools,24px,dark
+Chakra Petch,Exo 2,Chakra+Petch:700|Exo+2:400,700,400,cyber,esports fintech,36px,dark
+Bodoni Moda,DM Serif Display,Bodoni+Moda:700|DM+Serif+Display:400,700,400,luxe,fashion premium,30px,light
+Unbounded,Nunito Sans,Unbounded:700|Nunito+Sans:400,700,400,geometric,startup tech,38px,both
+Italiana,Crimson Pro,Italiana|Crimson+Pro:400,400,400,romantic,beauty lifestyle,30px,light
+Press Start 2P,Share Tech Mono,Press+Start+2P|Share+Tech+Mono,400,400,retro-pixel,retro gaming,20px,dark
+Clash Display,Cabinet Grotesk,ClashDisplay-Bold|CabinetGrotesk-Regular,700,400,alt-grotesque,design agency,40px,both
+Righteous,Quicksand,Righteous|Quicksand:400,400,400,rounded-bold,consumer app,36px,both
+Barlow Condensed,Barlow,Barlow+Condensed:700|Barlow:400,700,400,condensed,sports automotive,42px,dark
+Tenor Sans,Josefin Sans,Tenor+Sans|Josefin+Sans:300,400,300,refined,architecture interior,28px,light
+Black Han Sans,Noto Sans KR,Black+Han+Sans|Noto+Sans+KR:400,400,400,korean-bold,K-culture global,44px,dark
+Michroma,Electrolize,Michroma|Electrolize,400,400,tech-narrow,hardware robotics,30px,dark
+Unica One,Jura,Unica+One|Jura:400,400,400,unique-slab,fintech analytics,32px,dark
+Big Shoulders Display,Big Shoulders Text,Big+Shoulders+Display:800|Big+Shoulders+Text:400,800,400,tall-display,fashion editorial,50px,light
+Fraunces,Lora,Fraunces:700|Lora:400,700,400,optical,publishing media,28px,light
+Monument Extended,Neue Montreal,MonumentExtended-Black|NeueMontreal-Regular,900,400,wide-display,agency portfolio,48px,dark
+Epilogue,Epilogue,Epilogue:700;400,700,400,versatile,SaaS product,32px,both
+Familjen Grotesk,Familjen Grotesk,Familjen+Grotesk:600;400,600,400,grotesk-clean,startup minimal,34px,both
+Kanit,Sarabun,Kanit:700|Sarabun:400,700,400,thai-latin,SEA market global,36px,both
+Teko,Hind,Teko:600|Hind:400,600,400,condensed-tech,dashboard data,38px,dark
+Neuton,Neuton,Neuton:700;400,700,400,slab-serif,editorial lifestyle,28px,light
+Array,Array,Array:SemiBold;Regular,600,400,variable-mono,code creative,28px,dark
+Lexend,Lexend,Lexend:700;400,700,400,readability,accessibility-first,30px,both
+Viga,Fira Sans,Viga|Fira+Sans:400,400,400,display-wide,sports consumer,40px,dark
+Syncopate,Titillium Web,Syncopate:700|Titillium+Web:300,700,300,spaced-out,space tech luxury,34px,dark
+Albert Sans,Albert Sans,Albert+Sans:800;400,800,400,neutral-modern,product b2b,32px,both
+Changa,Exo,Changa:700|Exo:400,700,400,arabic-latin,global fintech,36px,dark
+Raleway,Raleway,Raleway:700;300,700,300,elegant-sans,photography portfolio,30px,both
+Cabin,Cabin,Cabin:700;400,700,400,humanist,health nonprofit,30px,both
+SUSE,SUSE,SUSE:700;400,700,400,technical,enterprise open-source,30px,dark
+Graduate,Libre Baskerville,Graduate|Libre+Baskerville:400,400,400,collegiate,education sports,30px,both
