@@ -1,0 +1,31 @@
+rule_id,rule,category,priority,target_metric,implementation,impact,three_js_specific
+PR01,Limit draw calls below 200 per frame,Geometry,critical,Draw calls < 200,Merge geometries with BufferGeometryUtils; use instancing,Very High,Yes
+PR02,Use InstancedMesh for repeated objects,Geometry,critical,Draw calls,Replace individual meshes with THREE.InstancedMesh when count > 10,Very High,Yes
+PR03,Dispose geometry and materials on unmount,Memory,critical,Memory leak prevention,Call geometry.dispose() + material.dispose() + texture.dispose() in cleanup,Very High,Yes
+PR04,Cap triangle count per scene,Geometry,high,Triangles < 500K mobile / 2M desktop,Use LOD; simplify meshes; use impostors for distant objects,High,Yes
+PR05,Compress textures with KTX2 + Basis,Textures,critical,Texture memory < 50MB,Use gltf-transform; ktx2 reduces GPU mem 4-8x,Very High,Yes
+PR06,Use texture atlases to reduce draw calls,Textures,high,Draw calls,Pack multiple textures into one atlas; adjust UV coordinates,High,Yes
+PR07,Set texture minFilter to LinearMipmapLinear,Textures,medium,Visual quality + perf,texture.minFilter = LinearMipmapLinearFilter; generateMipmaps = true,Medium,Yes
+PR08,Lazy load 3D scene after LCP,Loading,critical,LCP < 2.5s,Dynamically import Three.js; load models after hero text renders,Very High,Yes
+PR09,Use DRACO compression for GLTF models,Loading,high,Model file size < 500KB,Run gltf-transform draco on all .glb files; 70-90% size reduction,High,Yes
+PR10,Implement Level of Detail LOD,Geometry,high,FPS stability,Use THREE.LOD; swap to lower-poly mesh at distance thresholds,High,Yes
+PR11,Avoid per-frame object creation,JavaScript,critical,GC pressure,Pre-allocate Vector3/Matrix4 outside animation loop; reuse them,Very High,Yes
+PR12,Use requestAnimationFrame correctly,JavaScript,high,Smooth animation,Only render when needed; use setAnimationLoop(null) when paused,High,Yes
+PR13,Enable renderer precision wisely,Renderer,medium,GPU load,Use lowp or mediump precision in shaders; avoid highp where not needed,Medium,Yes
+PR14,Set pixel ratio cap at 2,Renderer,high,GPU fill rate,renderer.setPixelRatio(Math.min(window.devicePixelRatio 2)),High,Yes
+PR15,Use frustum culling,Renderer,high,Draw calls,Ensure mesh.frustumCulled = true; custom bounding boxes for large meshes,High,Yes
+PR16,Minimize shadow map resolution,Shadows,high,GPU memory + speed,Start at 512x512; only increase to 1024 if needed; limit shadow casters,High,Yes
+PR17,Use baked lighting instead of real-time,Lighting,high,Draw calls + FPS,Bake AO + shadows into textures in Blender; remove dynamic lights,Very High,Yes
+PR18,Limit real-time lights to max 3,Lighting,high,Shader complexity,Each light adds cost to every lit shader; bake where possible,High,Yes
+PR19,Avoid ShaderMaterial uniforms churn,Shaders,medium,GPU + CPU sync,Batch uniform updates; avoid setting uniforms inside render loop if unchanged,Medium,Yes
+PR20,Use MeshBasicMaterial for non-lit objects,Materials,high,Shader cost,Background elements; UI planes; particles don't need lighting calc,High,Yes
+PR21,Pool and reuse particle systems,Particles,high,Memory + GC,Object pool for Points/Sprites; reset instead of create+destroy,High,Yes
+PR22,Compress audio to WebM/Opus,Assets,medium,Bundle size,Use WebM/Opus at 96kbps for ambient; 128kbps for music,Medium,No
+PR23,Use Web Workers for heavy computation,JavaScript,high,Main thread FPS,Offload physics; pathfinding; geometry generation via comlink,High,Partial
+PR24,Implement progressive loading with placeholders,Loading,high,Perceived performance,Show low-poly placeholder; stream full model via useGLTF or fetch,High,Yes
+PR25,Avoid layout thrashing in animation loop,DOM,high,FPS + jank,Never read offsetWidth/clientHeight in rAF loop; cache DOM measurements,High,No
+PR26,Enable stencil + depth buffer pruning,Renderer,medium,GPU memory,renderer.autoClear = false; manually clear only what changed,Medium,Yes
+PR27,Use RenderTarget sparingly,Post-processing,high,GPU memory,Each RenderTarget uses VRAM; chain passes on single target; dispose unused,High,Yes
+PR28,Minimize onBeforeRender callbacks,JavaScript,medium,CPU overhead,Each mesh onBeforeRender fires per frame; consolidate into scene-level update,Medium,Yes
+PR29,Preload critical assets with link rel preload,Loading,high,LCP,Add link rel=preload for hero .glb and hero textures in HTML head,High,No
+PR30,Profile with Spector.js and Chrome GPU tab,Profiling,high,Debugging,Use Spector.js for draw call inspection; Chrome GPU tab for memory,Medium,Yes
