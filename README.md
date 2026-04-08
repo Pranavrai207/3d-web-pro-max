@@ -68,28 +68,26 @@ This solves that by forcing AI to think like a **Senior Graphics Engineer**, not
 
 ## ⚙️ Installation & CLI Setup
 
+> **Requirements:** Node.js 18+ installed on your machine. That's it.
+
 ### Step 1 — Clone the Repository
 
 ```bash
 git clone https://github.com/Pranavrai207/3d-web-pro-max
+```
+
+### Step 2 — Run the Installer
+
+```bash
+# ⚠️ Make sure you cd into cli/ first — index.js lives here, not in root
 cd 3d-web-pro-max/cli
-```
 
-### Step 2 — Install Dependencies
-
-```bash
-npm install
-```
-
-> No build step needed. The CLI is plain Node.js — zero external dependencies.
-
-### Step 3 — Run the Installer
-
-```bash
 node index.js --all
 ```
 
-That's it. The CLI detects your OS home directory and installs `SKILL.md` into every supported AI editor automatically.
+That's it — **no `npm install` needed.** The CLI is pure Node.js with zero external dependencies. It detects your OS home directory and copies `SKILL.md` into every supported AI editor automatically.
+
+> **Common mistake:** Running `node index.js` from the repo root will throw `MODULE_NOT_FOUND`. Always `cd cli` first.
 
 ---
 
