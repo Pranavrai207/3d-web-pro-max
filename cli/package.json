@@ -1,0 +1,14 @@
+{
+  "name": "3d-web-pro-max-cli",
+  "version": "1.0.0",
+  "description": "Global AI Code Editor Skills for 3D Web Pro Max",
+  "main": "index.js",
+  "bin": {
+    "3d-web-cli": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Pranav Rai",
+  "license": "MIT"
+}
