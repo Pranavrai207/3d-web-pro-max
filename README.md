@@ -82,8 +82,11 @@ git clone https://github.com/Pranavrai207/3d-web-pro-max
 # ⚠️ Make sure you cd into cli/ first — index.js lives here, not in root
 cd 3d-web-pro-max/cli
 
+# For Global Install (Background activation)
 node index.js --all
-```
+
+# For Local Install (Cursor/Windsurf @ menu activation)
+node index.js --local
 
 That's it — **no `npm install` needed.** The CLI is pure Node.js with zero external dependencies. It detects your OS home directory and copies `SKILL.md` into every supported AI editor automatically.
 
@@ -97,6 +100,7 @@ That's it — **no `npm install` needed.** The CLI is pure Node.js with zero ext
 |---|---|
 | `node index.js --all` | Installs skill to all 14 supported AI editors |
 | `node index.js --uninstall` | Removes skill from all supported editors |
+| `node index.js --local`	Local: Installs to .cursor/rules in current project workspace|
 
 ### Global Install (optional)
 
