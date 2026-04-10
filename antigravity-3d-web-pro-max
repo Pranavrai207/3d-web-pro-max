@@ -140,18 +140,241 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 ---
 
-### 3D-R2 — WEBGL FALLBACK (CRITICAL)
-Every 3D scene MUST have a 2D CSS fallback for devices without WebGL:
+### 3D-R2 — 3-TIER PROGRESSIVE FALLBACK (CRITICAL)
+
+Low-end mobile phones can have WebGL support but still choke on a 3D scene.
+A single WebGL check is not enough. You MUST implement all 3 tiers:
+
+---
+
+#### TIER 1 — No WebGL at all → Full CSS static fallback
+Runs before the renderer is even created. If WebGL is unavailable, never initialise THREE.js at all.
+
 ```js
-const canvas = renderer.domElement;
-const hasWebGL =
-  canvas.getContext('webgl2') || canvas.getContext('webgl');
+// Check BEFORE creating renderer
+const testCanvas = document.createElement('canvas');
+const hasWebGL = testCanvas.getContext('webgl2') || testCanvas.getContext('webgl');
 
 if (!hasWebGL) {
-  showFallback(); // Show a static image or CSS-only version
+  // Hide the canvas container, show the CSS fallback layer
+  document.getElementById('canvas-container').style.display = 'none';
+  document.getElementById('css-fallback').style.display = 'block';
+  // STOP — do not initialise THREE.js at all
+} else {
+  initThreeScene(); // only runs if WebGL exists
 }
 ```
-No fallback = blank white screen on unsupported devices.
+
+CSS fallback layer — put this in every page that has a 3D scene:
+```html
+<!-- 3D canvas sits here normally -->
+<div id="canvas-container">
+  <canvas id="three-canvas"></canvas>
+</div>
+
+<!-- CSS fallback — hidden by default, shown when WebGL fails -->
+<div id="css-fallback" style="display:none">
+  <!-- Use a high-quality static image + CSS animations to mimic depth -->
+  <div class="fallback-scene">
+    <img src="/assets/hero-static.webp" alt="Pagani Utopia, front three-quarter view">
+    <div class="fallback-glow"></div>      <!-- CSS radial-gradient glow -->
+    <div class="fallback-particles"></div> <!-- CSS keyframe dot animation -->
+  </div>
+</div>
+```
+
+CSS for the fallback (must feel designed, not broken):
+```css
+.fallback-scene {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: #0a0a0a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.fallback-scene img {
+  max-width: 90%;
+  object-fit: contain;
+  /* Subtle float animation to suggest interactivity */
+  animation: fallback-float 6s ease-in-out infinite;
+}
+.fallback-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 60%, rgba(180,140,80,0.15), transparent 70%);
+  pointer-events: none;
+}
+@keyframes fallback-float {
+  0%, 100% { transform: translateY(0px);   }
+  50%       { transform: translateY(-12px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Kill heavy animations — these cause motion sickness */
+  .fallback-scene img  { animation: none; }
+  .fallback-particles  { animation: none; }
+
+  /* Preserve light transitions — UX still feels responsive, just not distracting */
+  .fallback-glow       { transition-duration: 0.1s; }
+}
+```
+
+---
+
+#### TIER 2 — WebGL exists but device is low-end → Simplified 3D scene
+Detect low-end devices BEFORE loading the full scene. Use a lightweight render path instead.
+
+```js
+function isLowEndDevice() {
+  // SSR guard — navigator doesn't exist on the server (Next.js / Nuxt SSR will crash without this)
+  if (typeof navigator === 'undefined') return false;
+
+  // Hardware Concurrency: low-end phones usually have 4 or fewer cores
+  const lowCPU = navigator.hardwareConcurrency <= 4;
+
+  // Device Memory API (Chrome only — Safari/Firefox return undefined)
+  // ?? 4 → assume 4GB when unknown, so Safari never wrongly triggers lite mode
+  const lowRAM = (navigator.deviceMemory ?? 4) <= 2;
+
+  // Small screen = almost certainly a budget phone
+  const smallScreen = window.innerWidth < 480;
+
+  return lowCPU || lowRAM || smallScreen;
+}
+
+function initThreeScene() {
+  if (isLowEndDevice()) {
+    initLiteScene();  // low-poly, no shadows, no postprocessing
+  } else {
+    initFullScene();  // full quality
+  }
+}
+
+function initLiteScene() {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: false }); // antialias OFF
+  renderer.setPixelRatio(1);             // force 1:1 — never use devicePixelRatio on lite
+  renderer.shadowMap.enabled = false;    // no shadows
+
+  // Load a low-poly / decimated version of the model
+  loader.load('/models/hero-lite.glb', (gltf) => { scene.add(gltf.scene); });
+
+  // Respect prefers-reduced-motion — users with vestibular disorders / motion sensitivity
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // No EffectComposer — render directly
+  function animate() {
+    requestAnimationFrame(animate);
+    // If reduced motion: freeze all rotation/animation, just render the static scene
+    if (!reducedMotion && scene.children[0]) {
+      scene.children[0].rotation.y += 0.003; // slow idle rotation only when allowed
+    }
+    renderer.render(scene, camera);
+  }
+  animate();
+}
+
+function initFullScene() {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // always cap at 2
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  loader.load('/models/hero.glb', (gltf) => { scene.add(gltf.scene); });
+
+  // EffectComposer with postprocessing passes
+  composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  composer.addPass(bloomPass);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    composer.render();
+  }
+  animate();
+}
+```
+
+Asset pairing rule — always ship both versions:
+```
+/models/hero.glb       ← full quality, Draco compressed, max 5MB
+/models/hero-lite.glb  ← decimated to <500 triangles, max 1MB
+```
+
+---
+
+#### TIER 3 — Scene is running but FPS drops below threshold → Runtime degradation
+Even mid-range phones can overheat after 30 seconds. Monitor FPS live and degrade gracefully.
+
+```js
+let frameCount   = 0;
+let lastFPSCheck = performance.now();
+let degraded     = false;
+let useComposer  = true;  // declared here — applyDegradation() sets this to false
+
+function monitorFPS() {
+  frameCount++;
+  const now     = performance.now();
+  const elapsed = now - lastFPSCheck;
+
+  if (elapsed >= 2000) { // check every 2 seconds
+    const fps = (frameCount / elapsed) * 1000;
+    frameCount   = 0;
+    lastFPSCheck = now;
+
+    if (!degraded && fps < 30) {
+      degraded = true;
+      applyDegradation();
+    }
+  }
+}
+
+function applyDegradation() {
+  console.warn('[3D] FPS below 30 — applying degradation');
+
+  // Step 1: drop pixel ratio
+  renderer.setPixelRatio(1);
+
+  // Step 2: remove postprocessing, render directly
+  useComposer = false;
+
+  // Step 3: reduce animation complexity (e.g. freeze particle systems)
+  if (particles) particles.visible = false;
+
+  // Step 4: if still bad after 5 more seconds, swap to CSS fallback
+  setTimeout(() => {
+    if (degraded) swapToCSSFallback();
+  }, 5000);
+}
+
+function swapToCSSFallback() {
+  // Destroy renderer to free GPU memory
+  renderer.dispose();
+  document.getElementById('canvas-container').style.display = 'none';
+  document.getElementById('css-fallback').style.display    = 'block';
+}
+
+// Call inside your animation loop
+function animate() {
+  requestAnimationFrame(animate);
+  monitorFPS(); // always runs
+  if (useComposer) composer.render();
+  else renderer.render(scene, camera);
+}
+```
+
+---
+
+#### SUMMARY — When each tier fires
+
+| Tier | Trigger | Response |
+|---|---|---|
+| **Tier 1** | WebGL not supported | Skip THREE.js entirely, show CSS static scene |
+| **Tier 2** | Low-end device detected at load | Simplified 3D (lite model, no shadows, no AA, pixelRatio=1) |
+| **Tier 3** | FPS drops below 30 at runtime | Progressive degradation → CSS fallback as last resort |
+
+No fallback implementation = blank screen or frozen GPU on budget phones.
 
 ---
 
@@ -208,7 +431,7 @@ For any React / React Three Fiber project, `vercel.json` MUST exist:
 | All images | descriptive `alt` text |
 | Every page | identical nav + footer HTML |
 | THREE.js renderer | `setPixelRatio(Math.min(devicePixelRatio, 2))` |
-| Every 3D scene | WebGL detection + 2D CSS fallback |
+| Every 3D scene | 3-tier fallback: no WebGL → lite scene → runtime degradation |
 | All GLTF models | Draco-compressed, max 5 MB |
 | Mobile screens | postprocessing disabled below 768px |
 
@@ -257,7 +480,7 @@ When running on Gemini Flash (not Claude Sonnet/Opus), the model is more likely 
 - Miss `aria-expanded` on toggles → **R4**
 - Omit `{ passive: true }` on scroll listeners → **R9**
 - Forget `setPixelRatio` cap → **3D-R1**
-- Skip WebGL fallback entirely → **3D-R2**
+- Skip WebGL fallback entirely, or only add Tier 1 and miss Tier 2 + Tier 3 → **3D-R2**
 - Forget Draco loader setup → **3D-R3**
 - Leave postprocessing on for all screen sizes → **3D-R4**
 - Forget `vercel.json` → **R7 / 3D-R5**
