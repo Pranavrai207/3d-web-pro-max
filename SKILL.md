@@ -138,24 +138,204 @@ python3 "$SKILL_SCRIPT" "<keyword>" --domain <domain> -n <count>
 
 ## ⚡ MANDATORY RULES (FIRST-RUN PERFECTION)
 
-### Rule 1: ALWAYS Provide WebGL Fallback
+### Rule 1: ALWAYS Implement 3-Tier Progressive WebGL Fallback
 
-```jsx
-// React
-function SceneFallback() {
-  return <div className="scene-fallback" style={{background: 'var(--bg)'}}>
-    {/* CSS gradient or image fallback */}
+A basic WebGL check is not enough. Low-end phones can support WebGL but still choke on a 3D scene.
+You MUST implement all 3 tiers.
+
+---
+
+#### TIER 1 — No WebGL → Full CSS static fallback
+Run this check BEFORE creating the renderer. If WebGL is unavailable, never initialise THREE.js.
+
+```js
+const testCanvas = document.createElement('canvas');
+const hasWebGL   = testCanvas.getContext('webgl2') || testCanvas.getContext('webgl');
+
+if (!hasWebGL) {
+  document.getElementById('canvas-container').style.display = 'none';
+  document.getElementById('css-fallback').style.display    = 'block';
+  // STOP — do not initialise THREE.js at all
+} else {
+  initThreeScene();
+}
+```
+
+HTML structure required on every page with a 3D scene:
+```html
+<div id="canvas-container">
+  <canvas id="three-canvas" aria-label="Interactive 3D scene"></canvas>
+</div>
+
+<div id="css-fallback" style="display:none">
+  <div class="fallback-scene">
+    <img src="/assets/hero-static.webp" alt="Hero product, front three-quarter view">
+    <div class="fallback-glow"></div>
+    <div class="fallback-particles"></div>
   </div>
+</div>
+```
+
+CSS fallback — must feel designed, not broken:
+```css
+.fallback-scene {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: #0a0a0a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.fallback-scene img {
+  max-width: 90%;
+  object-fit: contain;
+  animation: fallback-float 6s ease-in-out infinite;
+}
+.fallback-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 60%, rgba(180,140,80,0.15), transparent 70%);
+  pointer-events: none;
+}
+@keyframes fallback-float {
+  0%, 100% { transform: translateY(0px);   }
+  50%       { transform: translateY(-12px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fallback-scene img  { animation: none; }      /* kill heavy animation */
+  .fallback-particles  { animation: none; }
+  .fallback-glow       { transition-duration: 0.1s; } /* preserve light transitions */
+}
+```
+
+---
+
+#### TIER 2 — WebGL exists but device is low-end → Simplified 3D scene
+Detect capability BEFORE loading the full scene. Route to lite render path if low-end.
+
+```js
+function isLowEndDevice() {
+  // SSR guard — navigator doesn't exist on server (Next.js / Nuxt will crash without this)
+  if (typeof navigator === 'undefined') return false;
+
+  const lowCPU     = navigator.hardwareConcurrency <= 4;
+  const lowRAM     = (navigator.deviceMemory ?? 4) <= 2; // ?? 4: Safari returns undefined
+  const smallScreen = window.innerWidth < 480;
+
+  return lowCPU || lowRAM || smallScreen;
 }
 
-// Check before rendering
-const webGLSupported = (() => {
-  try {
-    const canvas = document.createElement('canvas')
-    return !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
-  } catch { return false }
-})()
+function initThreeScene() {
+  isLowEndDevice() ? initLiteScene() : initFullScene();
+}
+
+function initLiteScene() {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
+  renderer.setPixelRatio(1);           // never use devicePixelRatio on lite
+  renderer.shadowMap.enabled = false;
+
+  loader.load('/models/hero-lite.glb', (gltf) => { scene.add(gltf.scene); });
+
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function animate() {
+    requestAnimationFrame(animate);
+    if (!reducedMotion && scene.children[0]) {
+      scene.children[0].rotation.y += 0.003; // idle rotation only when allowed
+    }
+    renderer.render(scene, camera);
+  }
+  animate();
+}
+
+function initFullScene() {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
+
+  loader.load('/models/hero.glb', (gltf) => { scene.add(gltf.scene); });
+
+  composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  composer.addPass(bloomPass);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    composer.render();
+  }
+  animate();
+}
 ```
+
+Always ship both model versions:
+```
+/models/hero.glb       ← full quality, Draco compressed, max 5MB
+/models/hero-lite.glb  ← decimated <500 triangles, max 1MB
+```
+
+---
+
+#### TIER 3 — Scene running but FPS drops → Runtime degradation
+Even mid-range phones overheat after 30 seconds. Monitor FPS live, degrade gracefully.
+
+```js
+let frameCount   = 0;
+let lastFPSCheck = performance.now();
+let degraded     = false;
+let useComposer  = true;
+
+function monitorFPS() {
+  frameCount++;
+  const now     = performance.now();
+  const elapsed = now - lastFPSCheck;
+
+  if (elapsed >= 2000) {
+    const fps    = (frameCount / elapsed) * 1000;
+    frameCount   = 0;
+    lastFPSCheck = now;
+
+    if (!degraded && fps < 30) {
+      degraded = true;
+      applyDegradation();
+    }
+  }
+}
+
+function applyDegradation() {
+  renderer.setPixelRatio(1);          // Step 1: drop pixel ratio
+  useComposer = false;                // Step 2: kill postprocessing
+  if (particles) particles.visible = false; // Step 3: freeze heavy elements
+
+  // Step 4: if still bad after 5s → full CSS fallback
+  setTimeout(() => {
+    if (degraded) swapToCSSFallback();
+  }, 5000);
+}
+
+function swapToCSSFallback() {
+  renderer.dispose(); // free GPU memory
+  document.getElementById('canvas-container').style.display = 'none';
+  document.getElementById('css-fallback').style.display    = 'block';
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  monitorFPS();
+  if (useComposer) composer.render();
+  else renderer.render(scene, camera);
+}
+```
+
+| Tier | Trigger | Response |
+|---|---|---|
+| **1** | WebGL not supported | Skip THREE.js entirely → CSS static scene |
+| **2** | Low-end device at load | Lite 3D (low-poly, no shadows, no AA, pixelRatio=1) |
+| **3** | FPS < 30 at runtime | Progressive degradation → CSS fallback as last resort |
+
+---
 
 ### Rule 2: ALWAYS Cap pixelRatio at 2
 
@@ -167,6 +347,8 @@ const webGLSupported = (() => {
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 ```
 
+---
+
 ### Rule 3: ALWAYS Disable Post-Processing on Mobile
 
 ```jsx
@@ -174,13 +356,14 @@ import { useMediaQuery } from 'react-responsive'
 
 const isMobile = useMediaQuery({ maxWidth: 768 })
 
-// In JSX
 {!isMobile && (
   <EffectComposer>
     <Bloom intensity={0.5} />
   </EffectComposer>
 )}
 ```
+
+---
 
 ### Rule 4: ALWAYS dispose() on Unmount
 
@@ -194,10 +377,11 @@ useEffect(() => {
 }, [])
 ```
 
+---
+
 ### Rule 5: ALWAYS use Draco + KTX2 for GLTF
 
 ```bash
-# Compress GLTF before using
 npx gltf-transform optimize model.glb model-opt.glb --compress draco
 ```
 
@@ -206,34 +390,34 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
 useGLTF.preload('/model-opt.glb')
 ```
 
+---
+
 ### Rule 6: ALWAYS use Lenis for Smooth Scroll
 
 ```jsx
-// main.jsx / layout.tsx
 import Lenis from 'lenis'
 
 const lenis = new Lenis({ lerp: 0.08, wheelMultiplier: 1 })
 
-function raf(time) {
-  lenis.raf(time)
-  requestAnimationFrame(raf)
-}
-requestAnimationFrame(raf)
-
-// Connect to GSAP ScrollTrigger
-ScrollTrigger.scrollerProxy(document.body, {
-  scrollTop(value) {
-    return arguments.length ? lenis.scrollTo(value) : lenis.scroll
-  }
-})
+// Connect to GSAP ticker — NOT requestAnimationFrame (avoids double-loop)
+gsap.ticker.add((time) => lenis.raf(time * 1000))
+gsap.ticker.lagSmoothing(0)
 lenis.on('scroll', ScrollTrigger.update)
+
+return () => lenis.destroy()
 ```
+
+---
 
 ### Rule 7: ALWAYS Cap Particles on Mobile
 
 ```jsx
 const particleCount = isMobile ? 2000 : 15000
 ```
+
+**Hard limit: ≤ 5,000 particles on mobile.**
+
+---
 
 ### Rule 8: NEVER Exceed 3 Shadow-Casting Lights
 
@@ -243,32 +427,35 @@ const particleCount = isMobile ? 2000 : 15000
 <ambientLight intensity={0.3} />
 <pointLight intensity={0.5} /> {/* no castShadow */}
 
-// WRONG — never do this
+// WRONG
 <directionalLight castShadow />
 <spotLight castShadow />
 <pointLight castShadow />
-<rectAreaLight castShadow />
+<rectAreaLight castShadow /> {/* 4 shadow maps = deploy blocker */}
 ```
+
+---
 
 ### Rule 9: Next.js — Dynamic Import for Canvas
 
 ```jsx
-// ALWAYS use dynamic import for R3F in Next.js
 const Scene = dynamic(() => import('@/components/Scene'), {
   ssr: false,
   loading: () => <SceneFallback />
 })
 ```
 
+---
+
 ### Rule 10: useFrame — Keep Under 2ms
 
 ```jsx
-// BAD — heavy computation in useFrame
+// BAD
 useFrame(() => {
-  positions.forEach(p => expensiveCalculation(p)) // blocks 60fps
+  positions.forEach(p => expensiveCalculation(p))
 })
 
-// GOOD — precompute, use delta time
+// GOOD
 const clock = useMemo(() => new THREE.Clock(), [])
 useFrame(() => {
   mesh.current.rotation.y += 0.5 * clock.getDelta()
@@ -297,7 +484,7 @@ useFrame(() => {
 ## Pre-Delivery Checklist — 3D Sites
 
 ### ⚠️ Critical WebGL
-- [ ] WebGL support detection + CSS fallback
+- [ ] 3-tier progressive fallback implemented (Tier 1 + 2 + 3)
 - [ ] `dpr` capped at `Math.min(devicePixelRatio, 2)`
 - [ ] Post-processing disabled on mobile
 - [ ] `dispose()` called on all geometries, materials, textures
@@ -310,7 +497,6 @@ useFrame(() => {
 - [ ] Shadow casters ≤ 3
 - [ ] `useFrame` computation < 2ms
 - [ ] GPU memory < 256MB mobile / 512MB desktop
-- [ ] `renderer.setPixelRatio(Math.min(devicePixelRatio, 2))`
 - [ ] Lazy-load 3D canvas (don't block LCP)
 
 ### 🎬 Scene Quality
@@ -326,7 +512,7 @@ useFrame(() => {
 - [ ] GSAP `matchMedia` for reduced mobile animations
 - [ ] Scroll-camera journeys → CSS parallax fallback on mobile
 - [ ] Touch events handled (not just mouse events)
-- [ ] `prefers-reduced-motion` respected
+- [ ] `prefers-reduced-motion` respected in JS + CSS
 
 ### 🔤 Typography + Layout
 - [ ] All headings use `clamp()` for fluid sizing

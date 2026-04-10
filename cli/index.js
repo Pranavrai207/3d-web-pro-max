@@ -44,7 +44,7 @@ function getFileName(editorName) {
     return '3d-web-pro-max.md';
 }
 
-// ── INSTALL ───────────────────────────────────────────────────
+// INSTALL LOGIC
 function installForEditor(editorName) {
     const targetFolder = editors[editorName];
     try {
@@ -56,12 +56,11 @@ function installForEditor(editorName) {
         console.log(`✅ [${editorName.toUpperCase()}] Installed → ${targetFile}`);
         return true;
     } catch (error) {
-        console.error(`❌ [${editorName.toUpperCase()}] Failed: ${error.message}`);
-        return false;
+        console.error(`❌ [${editorName.toUpperCase()}] Failed to install:`, error.message);
     }
 }
 
-// ── UNINSTALL ─────────────────────────────────────────────────
+// UNINSTALL LOGIC
 function uninstallForEditor(editorName) {
     const targetFolder = editors[editorName];
     const targetFile = path.join(targetFolder, getFileName(editorName));
@@ -81,41 +80,39 @@ function uninstallForEditor(editorName) {
 function main() {
     const args = process.argv.slice(2);
 
+    // Pre-flight check for Install Commands
+    if (args.includes('--all') || args.includes('--local')) {
+        if (!fs.existsSync(sourceSkillPath)) {
+            console.error('❌ CRITICAL: templates/SKILL.md not found!');
+            console.error(`   Expected: ${sourceSkillPath}`);
+            console.error('   Run this script from inside the cli/ folder, or ensure the templates folder exists.');
+            process.exit(1);
+        }
+    }
+
     if (args.includes('--uninstall')) {
         console.log('\n🧹 Uninstalling 3D Web Pro Max from all AI editors...\n');
         Object.keys(editors).forEach(uninstallForEditor);
-        console.log('\n✨ Uninstall complete!\n');
+        console.log('\n✨ Uninstallation complete! All skill files have been removed.\n');
         return;
     }
 
     if (args.includes('--all')) {
-        console.log('\n🚀 Installing 3D Web Pro Max to all supported AI editors...\n');
-
+        console.log('\n🚀 Initializing 3D Web Pro Max Global AI Skills...\n');
         if (!fs.existsSync(sourceSkillPath)) {
-            console.error('❌ CRITICAL: templates/SKILL.md not found!');
-            console.error(`   Expected: ${sourceSkillPath}`);
-            console.error('   Run this script from inside the cli/ folder.');
+            console.error('❌ CRITICAL ERROR: Source file not found!');
+            console.error(`Expected location: ${sourceSkillPath}`);
             process.exit(1);
         }
-
-        let passed = 0;
-        let failed = 0;
-        Object.keys(editors).forEach(editorName => {
-            installForEditor(editorName) ? passed++ : failed++;
-        });
-
-        console.log('\n' + '─'.repeat(60));
-        console.log(`🎉 Done! ${passed} installed, ${failed} failed.`);
-        console.log('─'.repeat(60));
-        console.log('\n📌 Antigravity IDE → restart IDE, then type: /3d-web-pro-max');
-        console.log('📌 Claude / Cursor / others → skill is active automatically\n');
+        Object.keys(editors).forEach(installForEditor);
+        console.log('\n🎉 Setup complete! You can now use /3d-web commands in your editors.\n');
         return;
     }
 
-    console.log('\n⚠️  Usage:\n');
-    console.log('   node index.js --all         Install to all supported editors');
-    console.log('   node index.js --uninstall   Remove from all editors');
-    console.log('\n   Must be run from inside the cli/ folder.\n');
+    // If no valid arguments provided
+    console.log('⚠️  Usage commands:');
+    console.log('  3d-web-cli --all       (To install for all supported editors)');
+    console.log('  3d-web-cli --uninstall (To remove from all supported editors)\n');
 }
 
 main();
